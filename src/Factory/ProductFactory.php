@@ -34,9 +34,11 @@ final class ProductFactory extends PersistentObjectFactory
         return [
             'sku' => self::faker()->unique()->ean13(),
             'slug' => self::faker()->unique()->slug(nbWords:3),
-            'status' => self::faker()->randomElement(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
+            'status' => self::faker()->randomElement(['DRAFT', 'PUBLISHED', 'PUBLISHED', 'PUBLISHED']),
             'title' => self::faker()->text(36),
             'description' => self::faker()->sentence(20),
+            'image' => self::faker()->imageUrl(width:400, height:400),
+            'rating' => ['rate' => self::faker()->randomFloat(1, 1, 5), 'count' => self::faker()->numberBetween(1,300)],
             'price' => self::faker()->randomFloat(nbMaxDecimals:2, min: 5, max:300),
         ];
     }
