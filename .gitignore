@@ -56,3 +56,5 @@
 .editorconfig
 .gitignore
 .gitignore
+symfony.lock
+composer.lock
