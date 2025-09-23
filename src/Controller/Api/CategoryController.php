@@ -43,7 +43,7 @@ final class CategoryController extends AbstractController
     {
         $data = $categories->find($id);
         return $this->json([
-            'data' => $data
+            'categories' => $data
         ], 200, [], ['groups' => ['category:item', 'category:list']]);
     }
 
@@ -52,7 +52,7 @@ final class CategoryController extends AbstractController
     {
         $data = $categories->findOneBy(['slug' => $slug]);
         return $this->json([
-            'data' => $data
+            'categories' => $data
         ], 200, [], ['groups' => ['category:item', 'category:list']]);
     }
 }

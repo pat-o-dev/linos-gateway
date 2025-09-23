@@ -19,7 +19,7 @@ final class ProductController extends AbstractController
         $data = $productRepository->findAllPaginated($page, $limit);
 
         return $this->json([
-            'data' => $data, 
+            'products' => $data, 
             'meta' => [
                 'page' => $page, 
                 'itemPerPage' => $limit,
@@ -34,7 +34,7 @@ final class ProductController extends AbstractController
     {
         $data = $products->find($id);
         return $this->json([
-            'data' => $data
+            'products' => $data
         ], 200, [], ['groups' => ['product:item']]);
     }
 
@@ -43,7 +43,7 @@ final class ProductController extends AbstractController
     {
         $data = $products->findOneBy(['slug' => $slug]);
         return $this->json([
-            'data' => $data
+            'products' => $data
         ], 200, [], ['groups' => ['product:item']]);
     }
 }
