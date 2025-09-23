@@ -37,7 +37,7 @@ final class ProductFactory extends PersistentObjectFactory
             'status' => self::faker()->randomElement(['DRAFT', 'PUBLISHED', 'PUBLISHED', 'PUBLISHED']),
             'title' => self::faker()->text(36),
             'description' => self::faker()->sentence(20),
-            'image' => self::faker()->imageUrl(width:400, height:400),
+            'image' => 'https://picsum.photos/400/400?random=' . self::faker()->unique()->numberBetween(1, 1000),
             'rating' => ['rate' => self::faker()->randomFloat(1, 1, 5), 'count' => self::faker()->numberBetween(1,300)],
             'price' => self::faker()->randomFloat(nbMaxDecimals:2, min: 5, max:300),
         ];
