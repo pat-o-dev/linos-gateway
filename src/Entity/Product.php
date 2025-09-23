@@ -2,53 +2,74 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use App\Entity\Category;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => ['product:item', 'max_depth' => 1]]), 
+        new GetCollection(normalizationContext: ['groups' => ['product:list', 'max_depth' => 1]])
+    ],
+    paginationEnabled: true
+)]
 class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['product:list', 'product:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product:list', 'product:item'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product:list', 'product:item'])]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product:list', 'product:item'])]
     private ?string $sku = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
     private ?float $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
     private ?string $image = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
     private ?array $rating = null;
 
     /**
      * @var Collection<int, Category>
      */
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'products')]
-    private Collection $category;
+    #[Groups(['product:list', 'product:item'])]
+    private Collection $categories;
 
     #[ORM\Column(length: 10)]
     private ?string $status = null;
 
     public function __construct()
     {
-        $this->category = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,15 +164,15 @@ class Product
     /**
      * @return Collection<int, Category>
      */
-    public function getCategory(): Collection
+    public function getCategories(): Collection
     {
-        return $this->category;
+        return $this->categories;
     }
 
     public function addCategory(Category $category): static
     {
-        if (!$this->category->contains($category)) {
-            $this->category->add($category);
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
         }
 
         return $this;
@@ -159,7 +180,7 @@ class Product
 
     public function removeCategory(Category $category): static
     {
-        $this->category->removeElement($category);
+        $this->categories->removeElement($category);
 
         return $this;
     }

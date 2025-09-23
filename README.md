@@ -31,7 +31,8 @@ php bin/console doctrine:migrations:migrate
 php bin/console foundry:load-fixtures 
 ```
 
-
 ## Documentation
 
 - [Symfony](https://symfony.com/doc/)
+- [Bundle Factory](https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#installation)
+
