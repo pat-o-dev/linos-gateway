@@ -2,21 +2,14 @@
 
 namespace App\Entity;
 
-
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Link;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CategoryRepository;
-use ApiPlatform\Metadata\GetCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ApiResource()]
 class Category
 {
     #[ORM\Id]
@@ -41,6 +34,7 @@ class Category
      * @var Collection<int, Product>
      */
     #[ORM\ManyToMany(targetEntity: Product::class, mappedBy: 'categories')]
+    #[Groups(['category:list'])]
     private Collection $products;
 
     public function __construct()
@@ -95,6 +89,13 @@ class Category
     public function getProducts(): Collection
     {
         return $this->products;
+    }
+
+    public function setProducts(Collection $products): static
+    {
+        $this->products = $products;
+
+        return $this;
     }
 
     public function addProduct(Product $product): static
