@@ -2,22 +2,44 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Linos Store API - Démo technique d'une API REST avec Symfony 7 et API Platform">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <title>{% block title %}Linos Store API{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Linos Store API - Démo technique d'une API REST avec Symfony 7 et API Platform">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <style type="text/tailwindcss">
+            @theme {
+                    --color-primary-50: #eff6ff;
+                    --color-primary-100: #dbeafe;
+                    --color-primary-200: #bfdbfe;
+                    --color-primary-300: #93c5fd;
+                    --color-primary-400: #60a5fa;
+                    --color-primary-500: #3b82f6;
+                    --color-primary-600: #2563eb;
+                    --color-primary-700: #1d4ed8;
+                    --color-primary-800: #1e40af;
+                    --color-primary-900: #1e3a8a;
+                    --color-primary: #2563eb; /* valeur par défaut */
+            }
+        </style>
+        {% block stylesheets %}{% endblock %}
+        {% block javascripts %}{% endblock %}
 
     </head>
    <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Header -->
     <header class="bg-white shadow">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Linos Store API</h1>
+            <h1 class="text-2xl font-bold text-gray-900"><a href="/">Linos Store API</a></h1>
             <nav>
-                <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2">Accueil</a>
-                {#<a href="/#docs" class="text-gray-600 hover:text-gray-900 px-3 py-2">Documentation</a>#}
+                {% if app.user %}
+                    <a href="{{ path('app_dashboard')}}" class="text-primary hover:text-gray-900 px-3 py-2">Dashboard</a>
+                    <a href="/api" class="text-primary hover:text-gray-900 px-3 py-2">Api</a>
+                    {{ app.user.email }}
+                    <a href="/logout" class="text-red-600 hover:text-red-800 px-3 py-2">Déconnexion</a>
+                {% else %}
+                    
+                    <a href="/login" class="text-primary hover:text-gray-900 px-3 py-2">Connexion</a>
+                {% endif %}
             </nav>
         </div>
     </header>
