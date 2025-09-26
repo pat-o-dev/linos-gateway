@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Linos.store API{% endblock %}
+
+{% block body %}
+<style>
+
+</style>
+
+    <!-- Hero Section -->
+    <section class="bg-gray-100 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Linos Store API - Démo Technique</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                <!-- Placeholder pour la présentation de ton projet -->
+                Bienvenue sur la démo technique de Linos Store API, une API REST développée avec Symfony 7 et API Platform. Cette plateforme expose des endpoints pour gérer des produits et catégories, conçue pour démontrer une architecture moderne et performante. Ajoute ta description détaillée ici.
+            </p>
+            <a href="/docs" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition">Voir la documentation</a>
+        </div>
+    </section>
+ <!-- API Functionality Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center">Fonctionnement de l'API</h3>
+            <div class="flex flex-col md:flex-row md:justify-center gap-8 max-w-4xl mx-auto">
+                <div class="bg-white shadow rounded-lg p-6 w-full max-w-sm">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">Endpoints REST</h4>
+                    <p class="text-gray-600">
+                        Accédez aux ressources via des endpoints comme <code class="bg-gray-100 px-1 py-0.5 rounded">/api/products</code> et <code class="bg-gray-100 px-1 py-0.5 rounded">/api/categories</code>. Les réponses sont au format JSON, compatibles avec les standards REST.
+                    </p>
+                </div>
+                <div class="bg-white shadow rounded-lg p-6 w-full max-w-sm">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">Structure des données</h4>
+                    <p class="text-gray-600">
+                        Les produits incluent des champs comme titre, prix, image, et statut (PUBLISHED/DRAFT). Les catégories sont liées via une relation Many-to-Many, exposée dans les réponses API.
+                    </p>
+                </div>
+                {#<div class="bg-white shadow rounded-lg p-6 w-full max-w-sm">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">Documentation intégrée</h4>
+                    <p class="text-gray-600">
+                        Explorez la documentation interactive via <a href="/docs" class="text-blue-600 hover:underline">/docs</a> pour tester les endpoints et comprendre les schémas de données.
+                    </p>
+                </div>#}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
