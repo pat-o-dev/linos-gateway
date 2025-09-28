@@ -8,9 +8,7 @@ use App\Repository\PageRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PageRepository::class)]
-#[ORM\Table(name: 'page', indexes: [
-    new ORM\Index(name: 'idx_page_slug', columns: ['slug'])
-])]
+#[ORM\Index(name: "idx_page_slug", columns: ["slug"])]
 class Page
 {
     #[ORM\Id]
