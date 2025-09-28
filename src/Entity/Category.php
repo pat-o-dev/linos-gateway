@@ -20,8 +20,11 @@ class Category
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $parentId = null;
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "children")]
+    private ?Category $parent = null;
+
+    #[ORM\OneToMany(mappedBy: "parent", targetEntity: Category::class)]
+    private Collection $children;
 
     #[ORM\Column(nullable: true)]
     private ?int $position = null;
@@ -53,6 +56,7 @@ class Category
 
     public function __construct()
     {
+        $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
     }
 
@@ -61,14 +65,14 @@ class Category
         return $this->id;
     }
 
-    public function getParentId(): ?int
+    public function getParent(): ?Category
     {
-        return $this->parentId;
+        return $this->parent;
     }
 
-    public function setParentId(int $parentId): static
+    public function setParent(?Category $parent): static
     {
-        $this->parentId = $parentId;
+        $this->parent = $parent;
 
         return $this;
     }
@@ -157,6 +161,33 @@ class Category
     {
         $this->products = $products;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(Category $child): self
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setParent($this);
+        }
+        return $this;
+    }
+
+    public function removeChild(Category $child): self
+    {
+        if ($this->children->removeElement($child)) {
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
         return $this;
     }
 

@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CategoryImporter
 {
+    private array $categoriesBySourceId = [];
+    
     public function __construct(
         private ApiClient $client,
         private EntityManagerInterface $em
@@ -16,7 +18,7 @@ class CategoryImporter
         #TMP
         $source = 'PS0';#uniq source
         $rootId = 2;#root presta
-
+        
         $data = $this->client->getCategories();
 
          foreach($data['categories'] ?? [] as $row) {
@@ -30,7 +32,13 @@ class CategoryImporter
 
             $category->setSource($source);
             $category->setSourceId($row['id']);
-            #TODO parentId #TODO generate tree, we need parent is create for find him
+            if((int) $row['id_parent'] > 0 && (int) $row['id_parent'] !== $rootId) {
+                $key_parent = $source .'-'. (int) $row['id_parent'];
+                $parent = $this->categoriesBySourceId[$key_parent] ?? null;
+                $category->setParent($parent);
+            } else {
+                $category->setParent(null);
+            }
             $category->setTitle($row['name']);
             #TODO slug not unique
             $category->setSlug($row['link_rewrite']);
@@ -38,6 +46,8 @@ class CategoryImporter
             $category->setPosition($row['position']);
             
             $this->em->persist($category);
+            $key = $source .'-'. $row['id'];
+            $this->categoriesBySourceId[$key] = $category;
         }
 
         try {
