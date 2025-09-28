@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ORM\UniqueConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CategoryRepository;
@@ -10,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[UniqueConstraint(name: "uniq_source_source_id", columns: ["source", "source_id"])]
 class Category
 {
     #[ORM\Id]
@@ -17,6 +19,18 @@ class Category
     #[ORM\Column]
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
     private ?int $id = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $parentId = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $position = null;
+
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $source = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $sourceId = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
@@ -45,6 +59,54 @@ class Category
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getParentId(): ?int
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(int $parentId): static
+    {
+        $this->parentId = $parentId;
+
+        return $this;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getSourceId(): ?int
+    {
+        return $this->sourceId;
+    }
+
+    public function setSourceId(int $sourceId): static
+    {
+        $this->sourceId = $sourceId;
+
+        return $this;
     }
 
     public function getTitle(): ?string
