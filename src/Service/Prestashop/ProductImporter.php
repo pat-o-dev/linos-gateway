@@ -48,10 +48,21 @@ class ProductImporter
                         'source'   => $source,
                         'sourceId' => (int) $sourceCategory['id']
                     ]);
-                    $product->addCategory($category);
+                    if ($category) {
+                        $product->addCategory($category);
+                    }
                 }
             }
-            // associations / images []
+            $sourceImages = $row['associations']['images'] ?? [];
+            //tmp just one
+            $sourceImages = [$sourceImages[0]];
+            foreach ($sourceImages as $sourceImage) {
+                // use prestashop for media 
+                $imageId = (int) $sourceImage['id'];
+                $path = implode('/', str_split((string) $imageId));
+                $image = "https://ps.linos.store/img/p/$path/$imageId-large_default.jpg";
+                $product->setImage($image);
+            }
             #TODO status
             $product->setStatus('PUBLISHED');
             $this->em->persist($product);
