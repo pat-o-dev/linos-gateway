@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[UniqueConstraint(name: "uniq_source_source_id", columns: ["source", "source_id"])]
 class Product
 {
     #[ORM\Id]
@@ -18,6 +19,12 @@ class Product
     #[ORM\Column]
     #[Groups(['product:list', 'product:item', 'category:list'])]
     private ?int $id = null;
+
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $source = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $sourceId = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['product:list', 'product:item', 'category:list'])]
@@ -27,13 +34,25 @@ class Product
     #[Groups(['product:list', 'product:item', 'category:list'])]
     private ?string $slug = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:item'])]
+    private ?string $manufacturerName = null;
+
     #[ORM\Column(length: 255)]
     #[Groups(['product:list', 'product:item', 'category:list'])]
     private ?string $sku = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['product:list', 'product:item'])]
+    private ?string $shortDescription = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['product:item'])]
     private ?string $description = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['product:item'])]
+    private ?float $weight = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['product:list', 'product:item', 'category:list'])]
@@ -66,6 +85,30 @@ class Product
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getSourceId(): ?int
+    {
+        return $this->sourceId;
+    }
+
+    public function setSourceId(int $sourceId): static
+    {
+        $this->sourceId = $sourceId;
+
+        return $this;
     }
 
     public function getTitle(): ?string
@@ -103,6 +146,18 @@ class Product
 
         return $this;
     }
+    
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): static
+    {
+        $this->shortDescription = $shortDescription;
+
+        return $this;
+    }
 
     public function getDescription(): ?string
     {
@@ -112,6 +167,18 @@ class Product
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getWeight(): ?float
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?float $weight): static
+    {
+        $this->weight = $weight;
 
         return $this;
     }
@@ -187,4 +254,17 @@ class Product
 
         return $this;
     }
+
+    public function getManufacturerName(): ?string
+    {
+        return $this->manufacturerName;
+    }
+
+    public function setManufacturerName(string $manufacturerName): static
+    {
+        $this->manufacturerName = $manufacturerName;
+
+        return $this;
+    }
+
 }

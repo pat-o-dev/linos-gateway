@@ -25,13 +25,12 @@ class ImportCategoriesCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $response = $this->importer->import();
-        if($response) {
+        if ($response) {
             $io->success('Prestashop Import Categories.');
             return Command::SUCCESS;
         }
 
         $io->error('Prestashop Import Categories Fail');
         return Command::FAILURE;
-        
     }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Service\Prestashop;
 
@@ -14,9 +14,9 @@ class ApiClient
 
     public function getProducts(): array
     {
-        $response = $this->client->request('GET', $this->baseUrl.'/products', [
+        $response = $this->client->request('GET', $this->baseUrl . '/products', [
             'query' => [
-                'output_format' => 'JSON', 
+                'output_format' => 'JSON',
                 'display' => 'full'
             ],
             'auth_basic' => [$this->apiKey, '']
@@ -26,7 +26,7 @@ class ApiClient
 
     public function getCategories(): array
     {
-        $response = $this->client->request('GET', $this->baseUrl.'/categories', [
+        $response = $this->client->request('GET', $this->baseUrl . '/categories', [
             'query' => [
                 'output_format' => 'JSON',
                 'display'       => 'full',
