@@ -36,4 +36,19 @@ class ApiClient
         ]);
         return $response->toArray();
     }
+
+    public function getCustomerByEmail(string $email): ?array
+    {
+        $response = $this->client->request('GET', $this->baseUrl . '/customers', [
+            'query' => [
+                'output_format' => 'JSON',
+                'display'       => 'full',
+                'filter[email]' => '['.$email.']',
+            ],
+            'auth_basic' => [$this->apiKey, '']
+        ]);
+
+        $customers = $response->toArray()['customers'] ?? [];
+        return $customers[0] ?? null;
+    }
 }
