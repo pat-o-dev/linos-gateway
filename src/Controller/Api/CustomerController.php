@@ -39,8 +39,8 @@ final class CustomerController extends AbstractController
     public function connect(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $email = $data['email'] ??  'patrick@gmail.com';
-        $password = $data['password'] ?? 'prestashop';
+        $email = $data['email'] ??  '';
+        $password = $data['password'] ?? '';
 
         if (!$email || !$password) {
             return $this->json(['error' => 'Email and password required'], 400);
