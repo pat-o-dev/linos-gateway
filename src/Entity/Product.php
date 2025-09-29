@@ -43,7 +43,7 @@ class Product
     private ?string $sku = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['product:list', 'product:item'])]
+    #[Groups(['product:list', 'product:item', 'category:list'])]
     private ?string $shortDescription = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

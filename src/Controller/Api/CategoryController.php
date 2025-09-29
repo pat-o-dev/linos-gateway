@@ -17,6 +17,7 @@ final class CategoryController extends AbstractController
     {
         $page = (int) $request->query->get('page', 1);
         $limit = (int) min($request->query->get('limit', 10), 20);
+
         $data = $categoryRepository->findAllPaginated($page, $limit);
 
         $categories = iterator_to_array($data);
@@ -24,18 +25,35 @@ final class CategoryController extends AbstractController
             // Force loading of products for each category
             $products = iterator_to_array($productRepository->findByCategoryPaginated($category, 1, 12));
             $category->setProducts(new \Doctrine\Common\Collections\ArrayCollection($products));
-
         }
 
         return $this->json([
-            'categories' => $categories, 
+            'categories' => $categories,
             'meta' => [
-                'page' => $page, 
+                'page' => $page,
                 'itemPerPage' => $limit,
-                'totalItems' => $data->count(), 
+                'totalItems' => $data->count(),
                 'totalPages' => ceil($data->count() / $limit)
-                ]
+            ]
         ], 200, [], ['groups' => ['category:list']]);
+    }
+
+    #[Route('/api/categories/tree', name: 'api.categories.tree', methods: ['GET'])]
+    public function tree(Request $request, CategoryRepository $categories): JsonResponse
+    {
+        $depth = (int) $request->query->get('depth', 1);
+
+        $data = $categories->createQueryBuilder('c')
+            ->where('c.depth = :depth')
+            ->setParameter('depth', $depth)
+            ->orderBy('c.parent', 'ASC')
+            ->addOrderBy('c.position', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->json([
+            'categories' => $data
+        ], 200, [], ['groups' => ['category:item', 'category:list', 'category:tree']]);
     }
 
     #[Route('/api/categories/{id}', name: 'api.categories.view', methods: ['GET'], requirements: ['id' => '\d+'])]

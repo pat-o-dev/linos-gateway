@@ -24,9 +24,15 @@ class Category
     private ?Category $parent = null;
 
     #[ORM\OneToMany(mappedBy: "parent", targetEntity: Category::class)]
+    #[Groups(['category:tree'])]
     private Collection $children;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['category:tree'])]
+    private ?int $depth = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['category:tree'])]
     private ?int $position = null;
 
     #[ORM\Column(length: 5, nullable: true)]
@@ -73,6 +79,18 @@ class Category
     public function setParent(?Category $parent): static
     {
         $this->parent = $parent;
+
+        return $this;
+    }
+
+    public function getDepth(): ?int
+    {
+        return $this->depth;
+    }
+
+    public function setDepth(int $depth)
+    {
+        $this->depth = $depth;
 
         return $this;
     }

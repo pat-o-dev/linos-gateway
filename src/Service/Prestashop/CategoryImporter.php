@@ -44,6 +44,7 @@ class CategoryImporter
             #TODO slug not unique
             $category->setSlug($row['link_rewrite']);
             $category->setDescription($row['description']);
+            $category->setDepth($row['level_depth']-1);// shop 0, root 1
             $category->setPosition($row['position']);
 
             $this->em->persist($category);
