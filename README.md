@@ -1,6 +1,6 @@
-# vuejs-small-shop
+# linos-gateway
 
-Petit projet e-commerce api pour fonctionner avec [vuejs-small-shop](https://github.com/pat-o-dev/vuejs-small-shop) et remplacer [fakestoreapi](https://fakestoreapi.com/docs)
+Petit projet de gateway api e-commerce pour fonctionner avec [linos-front](https://github.com/pat-o-dev/linos-front)) et remplacer [fakestoreapi](https://fakestoreapi.com/docs)
 
 ---
 
