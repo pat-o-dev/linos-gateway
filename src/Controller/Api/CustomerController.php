@@ -26,13 +26,22 @@ final class CustomerController extends AbstractController
         ], 200, [], []);
     }
 
-    #[Route('/api/customers/create', name: 'api.customers.create', methods: ['GET'])]
-    public function create(Request $request): JsonResponse 
+    #[Route('/api/customers/register', name: 'api.customers.register', methods: ['POST'])]
+    public function register(Request $request): JsonResponse 
     {
-        $customers = [];
-        return $this->json([
-            'customers' => $customers,
-        ], 200, [], []);
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ??  '';
+        $password = $data['password'] ?? '';
+        $firstname = $data['firstname'] ??  '';
+        $lastname = $data['lastname'] ?? '';
+
+        $customer = $this->customerService->register($email, $password, $firstname, $lastname);
+        
+        if (!empty($customer['error'])) {
+            return $this->json(['error' => $customer['error']], 401);
+        }
+
+        return $this->json($customer);
     }
 
     #[Route('/api/customers/connect', name: 'api.customers.connect', methods: ['POST'])]

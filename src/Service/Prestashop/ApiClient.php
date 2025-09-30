@@ -51,4 +51,29 @@ class ApiClient
         $customers = $response->toArray()['customers'] ?? [];
         return $customers[0] ?? null;
     }
+
+    public function register(array $payload): ?array
+    {
+        $xml = new \SimpleXMLElement('<prestashop/>');
+        $customer = $xml->addChild('customer');
+
+        $customer->addChild('firstname', htmlspecialchars($payload['customer']['firstname']));
+        $customer->addChild('lastname', htmlspecialchars($payload['customer']['lastname']));
+        $customer->addChild('email', htmlspecialchars($payload['customer']['email']));
+        $customer->addChild('passwd', htmlspecialchars($payload['customer']['passwd']));
+        $customer->addChild('id_default_group', '3');
+        $customer->addChild('active', '1');
+        $customer->addChild('id_lang', '1');
+       
+        $response = $this->client->request('POST', $this->baseUrl . '/customers', [
+            'query' => ['output_format' => 'JSON'],
+            'body'  => $xml->asXML(),
+            'auth_basic' => [$this->apiKey, '']
+        ]);
+
+        $data = $response->toArray(false);
+      
+        return $data['customer'] ?? null;
+    }
+    
 }

@@ -6,6 +6,13 @@ use App\Service\Prestashop\ApiClient;
 
 class CustomerService
 {
+    private array $requiredFields = [
+        'email',
+        'password',
+        'firstname',
+        'lastname'
+    ];
+    
     private array $allowedFields = [
         'id',
         'id_lang',
@@ -39,4 +46,43 @@ class CustomerService
 
         return array_intersect_key($customer, array_flip($this->allowedFields));
     }
+
+    public function register($email, $password, $firstname, $lastname)
+    {
+        if (!$email || !$password || !$firstname || !$lastname) {
+            return ['error' => 'Missing required fields'];
+        }
+            
+        $customer = $this->apiClient->getCustomerByEmail($email);
+        if ($customer) {
+            return ['error' => 'Email already used'];
+        }
+
+        $payload = [
+            'customer' => [
+                'firstname'   => $firstname,
+                'lastname'    => $lastname,
+                'email'       => $email,
+                'passwd'      => $password,
+                'id_default_group' => 1,
+                'active'      => 1,
+                'id_lang'     => 1,
+            ]
+        ];
+
+        try {
+            $newCustomer = $this->apiClient->register($payload);
+        } catch (\Exception $e) {
+            return ['error' => 'Failed to create customer: ' . $e->getMessage()];
+        }
+
+        if (!$newCustomer) {
+            return ['error' => 'Failed to create customer'];
+        }
+
+        return array_intersect_key($newCustomer, array_flip($this->allowedFields));
+
+    }
+
+
 }
