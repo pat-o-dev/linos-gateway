@@ -24,7 +24,7 @@ class Category
     private ?Category $parent = null;
 
     #[ORM\OneToMany(mappedBy: "parent", targetEntity: Category::class)]
-    #[Groups(['category:tree'])]
+    #[Groups(['category:tree', 'category:item'])]
     private Collection $children;
 
     #[ORM\Column(nullable: true)]
