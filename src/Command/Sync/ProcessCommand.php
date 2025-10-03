@@ -2,9 +2,8 @@
 
 namespace App\Command\Sync;
 
-use App\Dto\CategoryDto;
-use App\Repository\SyncJobRepository;
-use Doctrine\ORM\EntityManagerInterface;
+
+use App\Service\SyncJob\SyncJobProcessor;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,8 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ProcessCommand extends Command
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private SyncJobRepository $syncJobRepository
+        private SyncJobProcessor $jobs
     )
     {
         parent::__construct();
@@ -31,7 +29,7 @@ class ProcessCommand extends Command
     {
         $this
             ->addArgument('type', InputArgument::OPTIONAL, 'Job Type')
-            ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Number of jobs', 10)
+            ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Number of jobs', 2)
         ;
     }
 
@@ -45,38 +43,21 @@ class ProcessCommand extends Command
         if($jobType) {
             $criteria['type'] = $jobType;
         }
-        $jobs = $this->syncJobRepository->findBy($criteria, ['priority' => 'DESC'], $jobsLimit);
-        
-        if (!$jobs) {
+
+        $process = $this->jobs->process($criteria, $jobsLimit);
+        if(!$process) {
+            $io->fail('Process error');
+            return Command::FAILURE;
+        }
+        if (!$process['count']) {
             $io->success('No jobs to process');
             return Command::SUCCESS;
         }
 
-        foreach($jobs as $job) {
-            $job->markPending();
-            try {
-                switch($job->getType()) {
-                    case 'category_import':
-                        $dto = $job->getPayloadDto(CategoryDto::class);
-                        #TODO CategoryImporter
-                        $io->writeln("Processed Category #{$dto->id} ({$dto->name})");
-                         break;
-                }
-                $job->markDone();
-
-            } catch(\Throwable $e) {
-                if ($job->isMaxTriesReached()) {
-                    $job->markError();
-                } else {
-                    $job->markRetry();
-                }
-                $io->error("Job {$job->getId()} failed: ". $e->getMessage());
-            }
+        $io->success(" {$process['done']}/{$process['count']} jobs processed");
+        if($process['fail']) {
+             $io->error(" {$process['fail']}/{$process['count']} jobs processed");
         }
-        $this->em->flush();
-
-        $io->success(count($jobs)." jobs processed");
-
         return Command::SUCCESS;
     }
 }

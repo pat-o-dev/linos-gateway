@@ -31,7 +31,7 @@ class SyncJob
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $origin = null;
 
-    #[ORM\Column(length: 24)]
+    #[ORM\Column(length: 24, index: true)]
     private ?string $state = 'open';
 
     #[ORM\Column]
@@ -71,8 +71,10 @@ class SyncJob
 
     public function addTry(): void
     {
-        $this->tries++;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->markRetry();
+        if($this->isMaxTriesReached()) {
+            $this->markError();
+        }
     }
 
     public function getPayloadDto(string $dtoClass): object

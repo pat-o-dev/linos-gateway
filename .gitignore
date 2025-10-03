@@ -68,3 +68,6 @@ package-lock.json
 node_modules
 .phpunit.cache/test-results
 .env.local
+uploads/csv/categories.csv
+uploads/csv/products-50.csv
+uploads/csv/products.csv

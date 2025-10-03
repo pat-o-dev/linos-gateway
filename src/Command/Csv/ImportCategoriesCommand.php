@@ -4,7 +4,7 @@ namespace App\Command\Csv;
 
 use App\Entity\SyncJob;
 use App\Dto\CategoryDto;
-use Doctrine\ORM\EntityManager;
+use App\Message\JobMessage;
 use App\Command\Traits\HasParams;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -23,8 +24,10 @@ class ImportCategoriesCommand extends Command
 {
     use HasParams;
     
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private MessageBusInterface $bus
+    ) {
         parent::__construct();
     }
 
@@ -39,6 +42,7 @@ class ImportCategoriesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $jobType = 'category_import';
         $filename = $input->getArgument('filename');
         $csvDir = $this->param('csv_dir');
         $csvDelimiter = $input->getOption('delimiter');
@@ -66,7 +70,7 @@ class ImportCategoriesCommand extends Command
      
             $catDto = CategoryDto::fromArray($data);
             $syncJob = new SyncJob(
-                type: 'category_import', 
+                type: $jobType, 
                 objectId: $catDto->id, 
                 payload: $catDto->toArray(), 
                 source:'store_alpha', 
@@ -81,6 +85,8 @@ class ImportCategoriesCommand extends Command
         fclose($handle);
 
         $this->em->flush();
+
+         $this->bus->dispatch(new JobMessage($jobType));
 
         $io->success("$count categories queued into sync_job");
 
