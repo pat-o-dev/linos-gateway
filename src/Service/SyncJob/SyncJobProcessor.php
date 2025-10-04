@@ -41,7 +41,6 @@ class SyncJobProcessor
                         $job->markError();
                         $report['fail']++;
                         $report['errors'][] = "Job {$job->getId()} failed: unknow type ". $job->getType();
-                        $this->em->flush();
                         continue 2;
                     }
                 if($execute !== false) {
@@ -53,15 +52,19 @@ class SyncJobProcessor
                     $report['fail']++;
                     $report['errors'][] = "Job {$job->getId()} failed: execute ";
                 }
-                $this->em->flush();
             } catch(\Throwable $e) {
                 $job->addTry();
                 $report['fail']++;
                 $report['errors'][] = "Job {$job->getId()} failed: ". $e->getMessage();
+            }
+
+            if (($report['count'] % 10) === 0) {
                 $this->em->flush();
+
             }
             
         }
+        $this->em->flush();
 
         return $report;
     }
