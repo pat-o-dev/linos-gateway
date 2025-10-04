@@ -23,7 +23,7 @@ class JobMessageHandler
         $criteria = ['state' => 'open'];
         $limit = 5;
         $report = $this->syncJobProcessor->process($criteria, $limit);
-        #TODO Log report
+        dump($report);
         $type = $message->getType();
         // add new dispatch if have more jobs of same type
         if($this->syncJobRepository->hasOpenJobs($type)) {

@@ -44,7 +44,7 @@ class SyncJobProcessor
                         $this->em->flush();
                         continue 2;
                     }
-                if($execute) {
+                if($execute !== false) {
                     $report['done']++;
                     $job->markDone();
                 }

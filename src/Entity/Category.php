@@ -35,7 +35,7 @@ class Category
     #[Groups(['category:tree'])]
     private ?int $position = null;
 
-    #[ORM\Column(length: 5, nullable: true)]
+    #[ORM\Column(length: 24, index:true, nullable: true)]
     private ?string $source = null;
 
     #[ORM\Column(nullable: true)]
@@ -48,6 +48,18 @@ class Category
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
     private ?string $slug = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
+    private ?string $metaTitle = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
+    private ?string $metaDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:list', 'product:item'])]
+    private ?string $metaKeywords = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['category:item'])]
@@ -224,6 +236,66 @@ class Category
         if ($this->products->removeElement($product)) {
             $product->removeCategory($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of metaTitle
+     */ 
+    public function getMetaTitle(): ?string
+    {
+        return $this->metaTitle;
+    }
+
+    /**
+     * Set the value of metaTitle
+     *
+     * @return  self
+     */ 
+    public function setMetaTitle(?string $metaTitle): static
+    {
+        $this->metaTitle = $metaTitle;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of metaDescription
+     */ 
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    /**
+     * Set the value of metaDescription
+     *
+     * @return  self
+     */ 
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of metaKeywords
+     */ 
+    public function getMetaKeywords(): ?string
+    {
+        return $this->metaKeywords;
+    }
+
+    /**
+     * Set the value of metaKeywords
+     *
+     * @return  self
+     */ 
+    public function setMetaKeywords(?string $metaKeywords): static
+    {
+        $this->metaKeywords = $metaKeywords;
 
         return $this;
     }

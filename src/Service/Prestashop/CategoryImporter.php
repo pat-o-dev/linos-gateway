@@ -19,7 +19,8 @@ class CategoryImporter
         #TMP
         $source = 'PS0'; #uniq source
         $rootId = 2; #root presta
-
+        #TODO save in jobSync DTO
+        dd('end need to convert in DTO and insert in Job');
         $data = $this->client->getCategories();
 
         foreach ($data['categories'] ?? [] as $row) {
