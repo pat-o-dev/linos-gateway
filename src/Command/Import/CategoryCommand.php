@@ -5,6 +5,7 @@ namespace App\Command\Import;
 use App\Command\Traits\HasParams;
 use App\Repository\SyncJobRepository;
 use App\Service\CategoryImporter;
+use App\Service\SyncJob\SyncJobProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,6 +28,7 @@ class CategoryCommand extends Command
         private readonly EntityManagerInterface $em,
         private SyncJobRepository $syncJobRepository,
         private CategoryImporter $categoryImporter,
+        private SyncJobProcessor $syncJobProcessor,
     ) {
         parent::__construct();
     }
@@ -42,19 +44,19 @@ class CategoryCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
        
-        $jobId = $input->getArgument('id');
+        $jobId = $input->getArgument('id') ?? 0;
 
         // get syncJob
-        $job = $this->syncJobRepository->find($jobId);
-        $category = $this->categoryImporter->ImportJob($job);
-        dd($category);
-        // get payload
-
-        // call import
-
-
-        $io->success("Jobs id : $jobId");
-
+        if($jobId > 0) {
+            $job = $this->syncJobRepository->find($jobId);
+            $category = $this->categoryImporter->ImportJob($job);
+            dump($category);
+            $io->success("Jobs id : $jobId");
+        }
+        else {
+            $this->syncJobProcessor->process(limit: 5);
+        }
+       
         return Command::SUCCESS;
     }
 }

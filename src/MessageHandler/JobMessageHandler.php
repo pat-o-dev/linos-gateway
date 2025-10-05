@@ -20,7 +20,7 @@ class JobMessageHandler
 
     public function __invoke(JobMessage $message): void
     {
-        $criteria = ['state' => 'open'];
+        $criteria = [];
         $limit = 5;
         $report = $this->syncJobProcessor->process($criteria, $limit);
         dump($report);

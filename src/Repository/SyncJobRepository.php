@@ -20,12 +20,30 @@ class SyncJobRepository extends ServiceEntityRepository
         parent::__construct($registry, SyncJob::class);
     }
 
+    public function findAvailableJobs(array $criteria = [], int $limit = 10): array
+    {
+        $qb = $this->createQueryBuilder('j')
+            ->where('j.state = :state')
+            ->andWhere('(j.availableAt IS NULL OR j.availableAt <= :now)')
+            ->setParameter('state', 'open')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->orderBy('j.priority', 'DESC')
+            ->setMaxResults($limit);
+
+        if (!empty($criteria['type'])) {
+            $qb->andWhere('j.type = :type')->setParameter('type', $criteria['type']);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function claimOpenJob(int $id): bool
     {
         return (bool) $this->em->createQuery(
             'UPDATE App\Entity\SyncJob j
             SET j.state = :pending, j.updatedAt = :now
-            WHERE j.id = :id AND j.state = :open'
+            WHERE j.id = :id AND j.state = :open
+            AND (j.availableAt IS NULL OR j.availableAt <= :now)'
         )
         ->setParameters([
             'pending' => 'pending',

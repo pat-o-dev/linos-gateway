@@ -11,21 +11,30 @@ class SyncJob
 {
     public const MAX_TRY = 3;
 
+    public const DELAY_TRY = [
+        0 => '+1 minutes',
+        1 => '+5 minutes',
+        2 => '+30 minutes',
+        3 => '+1 hour',
+        4 => '+3 hour',
+        5 => '+6 hour',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 64)]
+    #[ORM\Column(length: 64, index: true)]
     private ?string $type = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(nullable: true, index: true)]
     private ?int $objectId = null;
 
     #[ORM\Column(type: Types::JSON)]
     private ?array $payload = null;
 
-    #[ORM\Column(length: 64, nullable: true)]
+    #[ORM\Column(length: 64, index: true)]
     private ?string $source = null;
 
     #[ORM\Column(length: 64, nullable: true)]
@@ -34,10 +43,10 @@ class SyncJob
     #[ORM\Column(length: 24, index: true)]
     private ?string $state = 'open';
 
-    #[ORM\Column]
+    #[ORM\Column(index: true)]
     private ?int $tries = 0;
 
-    #[ORM\Column]
+    #[ORM\Column(index: true)]
     private ?int $priority = 0;
 
     #[ORM\Column]
@@ -45,6 +54,9 @@ class SyncJob
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(nullable: true, index: true)]
+    private ?\DateTimeImmutable $availableAt = null;
 
     public function __construct(string $type, ?int $objectId, ?string $source, ?string $origin, array $payload, ?int $priority = 0)
     {
@@ -59,10 +71,17 @@ class SyncJob
     }
 
     public function markOpen(): void { $this->state = 'open'; $this->updatedAt = new \DateTimeImmutable(); }
-    public function markRetry(): void { $this->state = 'open'; $this->updatedAt = new \DateTimeImmutable(); $this->tries++; }
     public function markPending(): void { $this->state = 'pending'; $this->updatedAt = new \DateTimeImmutable(); }
     public function markDone(): void { $this->state = 'done'; $this->updatedAt = new \DateTimeImmutable(); }
-    public function markError(): void { $this->state = 'error'; $this->tries++; $this->updatedAt = new \DateTimeImmutable(); }
+    public function markError(): void { $this->state = 'error'; $this->updatedAt = new \DateTimeImmutable(); }
+    public function markRetry(): void { 
+        $this->state = 'open';
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->tries++; 
+        $delayStr = self::DELAY_TRY[ $this->tries] ?? end(self::DELAY_TRY);
+        $this->availableAt = new \DateTimeImmutable()->modify($delayStr);
+        
+    }
 
     public function isMaxTriesReached(): bool
     {
@@ -119,6 +138,18 @@ class SyncJob
     public function setSource(?string $source): static
     {
         $this->source = $source;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(?string $origin): static
+    {
+        $this->origin = $origin;
 
         return $this;
     }
@@ -183,6 +214,18 @@ class SyncJob
         return $this;
     }
 
+    public function getAvailableAt(): ?\DateTimeImmutable
+    {
+        return $this->availableAt;
+    }
+
+    public function setAvailableAt(\DateTimeImmutable $availableAt): static
+    {
+        $this->availableAt = $availableAt;
+
+        return $this;
+    }
+
     public function getPayload(): ?array
     {
         return $this->payload;
@@ -193,5 +236,9 @@ class SyncJob
         $this->payload = $payload;
 
         return $this;
+    }
+
+    public function isAvailableNow(): bool {
+        return $this->availableAt === null || $this->availableAt <= new \DateTimeImmutable();
     }
 }
