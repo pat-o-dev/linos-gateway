@@ -2,22 +2,23 @@
 
 namespace App\Service;
 
+use Exception;
 use App\Entity\SyncJob;
 use App\Dto\CategoryDto;
 use App\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 class CategoryImporter 
 {
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private EntityManagerInterface $em,
     ){
         
     }
 
-    public function importJob(SyncJob $job): Category
+    public function importJob(SyncJob $job): Category|array
     {
         $categoryDto = $job->getPayloadDto(CategoryDto::class);
         $source = $job->getSource();
@@ -25,7 +26,7 @@ class CategoryImporter
         return $this->import($categoryDto, $source, $sourceId);
     }
 
-    public function import(CategoryDto $categoryDto, ?string $source = null, ?int $sourceId = null): Category
+    public function import(CategoryDto $categoryDto, ?string $source = null, ?int $sourceId = null): Category|array
     {
         // try to get category sync
         $category = $this->em->getRepository(Category::class)->findOneBy([
@@ -34,14 +35,14 @@ class CategoryImporter
         ]) ?? new Category();
         
         if ($categoryDto->parentId > 0) {
-            $categoryParent = $this->em->getRepository(Category::class)->findOneBy([
+            $parentCategory = $this->em->getRepository(Category::class)->findOneBy([
                 'source' => $source,
                 'sourceId' => $categoryDto->parentId
             ]) ?? null;
-            if(!$categoryParent) {
-                throw new \Exception("Parent not exist wait next try");
+            if(!$parentCategory) {
+                return ['error' => "{$sourceId } : Parent {$categoryDto->parentId} not exist wait next try"];
             }
-            $category->setParent($categoryParent);
+            $category->setParent($parentCategory);
         } else {
             $category->setParent(null);
         }
@@ -53,15 +54,10 @@ class CategoryImporter
         $category->setMetaTitle($categoryDto->metaTitle);
         $category->setMetaDescription($categoryDto->metaDescription);
         $category->setMetaKeywords($categoryDto->metaKeywords);
-        $category->setDepth($categoryDto->lvl);
+        $category->setDepth($categoryDto->depth);
 
         $this->em->persist($category);
 
-        try {
-            $this->em->flush();
-            return $category;
-        } catch (\Throwable $e) {
-            throw new \Exception($e->getMessage());
-        }
+        return $category;
     }
 }

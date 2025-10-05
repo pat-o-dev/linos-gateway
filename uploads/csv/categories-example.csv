@@ -1,1 +1,1 @@
-id,parent_id,lvl,name,is_root,slug,description,date_add,date_update,meta_title,meta_keywords,meta_description,image,intro,outro
+id,parent_id,depth,name,is_root,slug,description,date_add,date_update,meta_title,meta_keywords,meta_description,image,intro,outro

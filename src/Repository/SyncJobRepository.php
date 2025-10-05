@@ -37,18 +37,18 @@ class SyncJobRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function claimOpenJob(int $id): bool
+    public function claimOpenJob(int $id, \DateTimeImmutable $leaseUntil): bool
     {
         return (bool) $this->em->createQuery(
             'UPDATE App\Entity\SyncJob j
-            SET j.state = :pending, j.updatedAt = :now
+            SET j.availableAt = :leaseUntil, j.updatedAt = :now
             WHERE j.id = :id AND j.state = :open
             AND (j.availableAt IS NULL OR j.availableAt <= :now)'
         )
         ->setParameters([
-            'pending' => 'pending',
             'open'    => 'open',
             'now'     => new \DateTimeImmutable(),
+            'leaseUntil' => $leaseUntil,
             'id'      => $id,
         ])
         ->execute();
@@ -59,7 +59,9 @@ class SyncJobRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('j')
             ->select('COUNT(j.id)')
             ->where('j.state = :state')
-            ->setParameter('state', 'open');
+            ->andWhere('(j.availableAt IS NULL OR j.availableAt <= :now)')
+            ->setParameter('state', 'open')
+            ->setParameter('now', new \DateTimeImmutable());
 
         if($type) {
             $qb->andWhere('j.type = :type')

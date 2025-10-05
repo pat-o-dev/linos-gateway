@@ -13,7 +13,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -54,7 +53,8 @@ class CategoryCommand extends Command
             $io->success("Jobs id : $jobId");
         }
         else {
-            $this->syncJobProcessor->process(limit: 5);
+            $report = $this->syncJobProcessor->process(limit: 5);
+            dump($report);
         }
        
         return Command::SUCCESS;

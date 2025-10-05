@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ORM\UniqueConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CategoryRepository;
@@ -11,7 +10,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[UniqueConstraint(name: "uniq_source_source_id", columns: ["source", "source_id"])]
+#[ORM\Table(
+    name: 'category',
+    uniqueConstraints: [
+        new ORM\UniqueConstraint(
+            name: 'uniq_parent_slug_source',
+            columns: ['parent_id', 'slug', 'source']
+        ),
+        new ORM\UniqueConstraint(
+            name: 'uniq__source_source_id',
+            columns: ['source', 'source_id']
+        )
+    ]
+)]
 class Category
 {
     #[ORM\Id]
@@ -45,7 +56,7 @@ class Category
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, index: true)]
     #[Groups(['category:list', 'category:item', 'product:list', 'product:item'])]
     private ?string $slug = null;
 

@@ -2,68 +2,69 @@
 
 namespace App\Service\Prestashop;
 
-use App\Entity\Category;
+use App\Entity\SyncJob;
+use App\Dto\CategoryDto;
+use App\Message\JobMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class CategoryImporter
 {
-    private array $categoriesBySourceId = [];
-
     public function __construct(
         private ApiClient $client,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private MessageBusInterface $bus,
     ) {}
 
     public function import()
     {
         #TMP
         $source = 'PS0'; #uniq source
-        $rootId = 2; #root presta
-        #TODO save in jobSync DTO
-        dd('end need to convert in DTO and insert in Job');
+        $jobType = 'category_import';
+        $origin = 'prestashop_api';
+        $priority = 10;
+
         $data = $this->client->getCategories();
-
-        foreach ($data['categories'] ?? [] as $row) {
-            // exclude master & root
-            if ($row['id_parent'] == 0 || $row['id'] == $rootId) continue;
-            // try to get category sync
-            $category = $this->em->getRepository(Category::class)->findOneBy([
-                'source' => $source,
-                'sourceId' => $row['id']
-            ]) ?? new Category();
-
-            $category->setSource($source);
-            $category->setSourceId($row['id']);
-            if ((int) $row['id_parent'] > 0 && (int) $row['id_parent'] !== $rootId) {
-                $key_parent = $source . '-' . (int) $row['id_parent'];
-                $parent = $this->categoriesBySourceId[$key_parent] ?? null;
-                $category->setParent($parent);
-            } else {
-                $category->setParent(null);
+        $count = 0;
+        foreach ($data['categories'] as $row) {
+            if ($row['id_parent'] == 0) {
+                continue;
             }
-            $category->setTitle($row['name']);
-            #TODO slug not unique
-            $category->setSlug($row['link_rewrite']);
-            $category->setDescription($row['description']);
-            $category->setDepth($row['level_depth']-1);// shop 0, root 1
-            $category->setPosition($row['position']);
+            if ($row['id_parent'] == 1) {
+                $row['id_parent'] = 0;
+            }
+            $row['depth'] = (int) ($row['level_depth']);
+            $row['slug'] = $row['link_rewrite'] ?? '';
+            $row['parentId'] = $row['id_parent'] ?? '';
+            $row['metaTitle'] = $row['meta_title'] ?? '';
+            $row['metaDescription'] = $row['meta_description'] ?? '';
+            $row['metaKeywords'] = $row['meta_keywords'] ?? '';
+            $catDto = CategoryDto::fromArray($row);
+      
+            $job = new SyncJob(
+                type: $jobType,
+                objectId: $catDto->id,
+                source: $source,
+                origin: $origin,
+                payload: $catDto->toArray(),
+                priority: ($priority - $row['depth']),
+            );
 
-            $this->em->persist($category);
-            $key = $source . '-' . $row['id'];
-            $this->categoriesBySourceId[$key] = $category;
+            $this->em->persist($job);
+            $count++;
+            if ($count % 10 === 0) {
+                $this->em->flush();
+                $this->em->clear();
+            }
         }
 
-        try {
+        
+        if($count > 0) {
             $this->em->flush();
-            return true;
-        } catch (\Throwable $e) {
-            #TODO log & monitoring
-            return false;
+            $this->bus->dispatch(new JobMessage($jobType));
         }
-    }
+        
 
-    public function check()
-    {
-        return true;
+        return $count;
     }
 }
