@@ -67,7 +67,7 @@ class ImportCategoriesCommand extends Command
         $count = 0;
         while (($row = fgetcsv($handle, 0, $csvDelimiter)) !== false) {
             $data = array_combine($headers, $row);
-   
+
             $catDto = CategoryDto::fromArray($data);
             $syncJob = new SyncJob(
                 type: $jobType, 

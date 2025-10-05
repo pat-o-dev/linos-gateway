@@ -16,7 +16,7 @@ final class CategoryController extends AbstractController
     public function index(Request $request, CategoryRepository $categoryRepository, ProductRepository $productRepository): JsonResponse
     {
         $page = (int) $request->query->get('page', 1);
-        $limit = (int) min($request->query->get('limit', 10), 20);
+        $limit = (int) min($request->query->get('limit', 100), 100);
 
         $data = $categoryRepository->findAllPaginated($page, $limit);
 
