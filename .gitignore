@@ -71,3 +71,5 @@ node_modules
 uploads/csv/categories.csv
 uploads/csv/products-50.csv
 uploads/csv/products.csv
+public/build/
+public/bundles/
